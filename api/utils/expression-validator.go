@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -17,7 +16,6 @@ func ValidateExpression(expression string) (bool, error) {
 
 	isValidNumber := regexp.MustCompile(`^\d+$`).MatchString
 	isValidLastNumber := regexp.MustCompile(`^\d+\?$`).MatchString
-	log.Printf("Expression so far: %s", expression)
 
 	expected := "number"
 
@@ -26,9 +24,7 @@ func ValidateExpression(expression string) (bool, error) {
 
 		switch expected {
 		case "number":
-			log.Printf("In number case: %s", token)
 			if isValidLastNumber(token) {
-				log.Printf("In valid last num case: %s", token)
 				return true, nil
 			}
 			if !isValidNumber(token) {
@@ -37,7 +33,6 @@ func ValidateExpression(expression string) (bool, error) {
 			expected = "operator"
 
 		case "operator":
-			log.Printf("In operator case: %s", token)
 			if token == "plus" || token == "minus" {
 				expected = "number"
 			} else if token == "multiplied" || token == "divided" {
@@ -56,7 +51,6 @@ func ValidateExpression(expression string) (bool, error) {
 	}
 
 	if expected == "operator" {
-		log.Printf("In fail case: %s", expected)
 		return false, errors.New("expression ends with an operator, expected a number")
 	}
 
