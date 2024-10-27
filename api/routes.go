@@ -9,7 +9,7 @@ import (
 func SetupRoutes(router *gin.Engine) {
 	handler := handlers.NewHandler()
 
-	router.GET("/evaluate", handler.Evaluate)
-	router.GET("/validate", handler.Validate)
+	router.POST("/evaluate", handler.Evaluate)
+	router.POST("/validate", handler.Validate)
 	router.GET("/errors", handler.GetErrors)
 }

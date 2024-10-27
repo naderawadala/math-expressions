@@ -5,11 +5,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-type Handler struct{}
 type ExpressionRequest struct {
 	Expression string `json:"expression"`
+}
+type ErrorExpressionsRequest struct {
+	Expression string `json:"expression"`
+	Endpoint   string `json:"endpoint"`
+	Frequency  int    `json:"frequency"`
+	ErrorType  string `json:"type"`
+}
+type Handler struct {
+	db *gorm.DB
 }
 
 func NewHandler() *Handler {
@@ -21,17 +30,20 @@ func (h *Handler) Evaluate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		utils.LogError(req.Expression, "/evaluate", err.Error())
 		return
 	}
 
-	if valid, reason := utils.ValidateExpression(req.Expression); !valid {
-		c.JSON(http.StatusBadRequest, gin.H{"valid": false, "reason": reason})
+	if valid, err := utils.ValidateExpression(req.Expression); !valid {
+		c.JSON(http.StatusBadRequest, gin.H{"valid": false, "reason": err.Error()})
+		utils.LogError(req.Expression, "/evaluate", err.Error())
 		return
 	}
 
 	result, err := utils.CalculateExpression(req.Expression)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.LogError(req.Expression, "/evaluate", err.Error())
 		return
 	}
 
@@ -43,11 +55,13 @@ func (h *Handler) Validate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		utils.LogError(req.Expression, "/validate", err.Error())
 		return
 	}
 
-	if valid, reason := utils.ValidateExpression(req.Expression); !valid {
-		c.JSON(http.StatusBadRequest, gin.H{"valid": false, "reason": reason})
+	if valid, err := utils.ValidateExpression(req.Expression); !valid {
+		c.JSON(http.StatusBadRequest, gin.H{"valid": false, "reason": err.Error()})
+		utils.LogError(req.Expression, "/validate", err.Error())
 		return
 	}
 
@@ -55,5 +69,7 @@ func (h *Handler) Validate(c *gin.Context) {
 }
 
 func (h *Handler) GetErrors(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "test"})
+	result := utils.GetErrors()
+
+	c.JSON(http.StatusOK, gin.H{"result": result})
 }

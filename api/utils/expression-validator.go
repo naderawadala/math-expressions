@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"errors"
 	"log"
 	"regexp"
 	"strings"
 )
 
-func ValidateExpression(expression string) (bool, string) {
+func ValidateExpression(expression string) (bool, error) {
 	if !strings.HasPrefix(expression, "What is") || !strings.HasSuffix(expression, "?") {
-		return false, "Expression should start with 'What is' and end with '?'"
+		return false, errors.New("expression should start with 'What is' and end with '?'")
 	}
 
 	expression = strings.TrimPrefix(expression, "What is ")
@@ -28,10 +29,10 @@ func ValidateExpression(expression string) (bool, string) {
 			log.Printf("In number case: %s", token)
 			if isValidLastNumber(token) {
 				log.Printf("In valid last num case: %s", token)
-				return true, ""
+				return true, nil
 			}
 			if !isValidNumber(token) {
-				return false, "Invalid syntax: expected a number, got '" + token + "'"
+				return false, errors.New("invalid syntax: expected a number, got '" + token + "'")
 			}
 			expected = "operator"
 
@@ -41,23 +42,23 @@ func ValidateExpression(expression string) (bool, string) {
 				expected = "number"
 			} else if token == "multiplied" || token == "divided" {
 				if i+1 >= len(tokens) || tokens[i+1] != "by" {
-					return false, "Invalid syntax: expected 'by' after '" + token + "'"
+					return false, errors.New("invalid syntax: expected 'by' after '" + token + "'")
 				}
 				i++
 				expected = "number"
 			} else {
 				if isValidNumber(token) {
-					return false, "Expected operation, received number: '" + token + "' instead."
+					return false, errors.New("expected operation, received number: '" + token + "' instead")
 				}
-				return false, "Unsupported operation: '" + token + "'"
+				return false, errors.New("unsupported operation: '" + token + "'")
 			}
 		}
 	}
 
 	if expected == "operator" {
 		log.Printf("In fail case: %s", expected)
-		return false, "Expression ends with an operator, expected a number."
+		return false, errors.New("expression ends with an operator, expected a number")
 	}
 
-	return true, ""
+	return true, nil
 }

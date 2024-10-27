@@ -60,7 +60,7 @@ func CalculateExpression(expression string) (int, error) {
 				expected = "number"
 			case "multiplied", "divided":
 				if i+1 >= len(tokens) || tokens[i+1] != "by" {
-					return 0, fmt.Errorf("Invalid syntax: expected 'by' after '%s' ", token)
+					return 0, fmt.Errorf("invalid syntax: expected 'by' after '%s' ", token)
 				}
 				i++
 				operator = token
