@@ -11,12 +11,7 @@ import (
 type ExpressionRequest struct {
 	Expression string `json:"expression"`
 }
-type ErrorExpressionsRequest struct {
-	Expression string `json:"expression"`
-	Endpoint   string `json:"endpoint"`
-	Frequency  int    `json:"frequency"`
-	ErrorType  string `json:"type"`
-}
+
 type Handler struct {
 	db *gorm.DB
 }
